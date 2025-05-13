@@ -19,6 +19,12 @@ def create_task(api_token, task_content, due_date=None, description=None):
 
     response = requests.post(url, headers=headers, json=data)
 
+    if response.status_code == 429:
+            error_details = response.json()
+            retry_after = error_details.get("error_extra", {}).get("retry_after", "unknown")
+            print(f"Rate limit reached. Retry after {retry_after} seconds.")
+            return False
+    
     if response.status_code != 200:
         raise Exception(f"Failed to create task: {response.status_code} {response.text}")
 
@@ -37,6 +43,13 @@ def get_todoist_tasks_completed(api_token):
     }
 
     response = requests.post(url, headers=headers, params=params)
+
+    if response.status_code == 429:
+            error_details = response.json()
+            retry_after = error_details.get("error_extra", {}).get("retry_after", "unknown")
+            print(f"Rate limit reached. Retry after {retry_after} seconds.")
+            return False
+    
     if response.status_code != 200:
         raise Exception(f"Failed to fetch tasks: {response.status_code} {response.text}")
     tasks = response.json().get("items", [])  # Get filtered tasks (already completed)
@@ -44,25 +57,31 @@ def get_todoist_tasks_completed(api_token):
     return tasks
 
 def check_existing_tasks(api_token, task_content):
-    import requests
+        import requests
 
-    url = "https://api.todoist.com/sync/v9/sync"
-    headers = {
-        "Authorization": f"Bearer {api_token}"
-    }
-    data = {
-        "sync_token": "*",  # Use "*" to fetch all tasks
-        "resource_types": '["items"]'  # Specify that we want to fetch tasks
-    }
+        url = "https://api.todoist.com/sync/v9/sync"
+        headers = {
+            "Authorization": f"Bearer {api_token}"
+        }
+        data = {
+            "sync_token": "*",  # Use "*" to fetch all tasks
+            "resource_types": '["items"]'  # Specify that we want to fetch tasks
+        }
 
-    response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, json=data)
 
-    if response.status_code != 200:
-        raise Exception(f"Failed to fetch tasks: {response.status_code} {response.text}")
+        if response.status_code == 429:
+            error_details = response.json()
+            retry_after = error_details.get("error_extra", {}).get("retry_after", "unknown")
+            print(f"Rate limit reached. Retry after {retry_after} seconds.")
+            return False
 
-    tasks = response.json().get("items", [])  # Extract tasks from the response
+        if response.status_code != 200:
+            raise Exception(f"Failed to fetch tasks: {response.status_code} {response.text}")
 
-    for task in tasks:
-        if task['content'] == task_content:
-            return True
-    return False
+        tasks = response.json().get("items", [])  # Extract tasks from the response
+
+        for task in tasks:
+            if task['content'] == task_content:
+                return True
+        return False

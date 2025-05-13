@@ -7,8 +7,10 @@ import base64
 from todoist_api import create_task, check_existing_tasks, get_todoist_tasks_completed
 from supernote import update_supernote_task_status, get_supernote_tasks_needsAction, decode_metadata, convert_timestamp_to_date, get_supernote_tasks_all
 
-with open("/tmp/supernote-cron-test.log", "a") as f:
-    f.write(f"Ran at {datetime.datetime.now().isoformat()}\n")
+os.chdir("/Users/jeremythake/Code/supernote-to-todoist")
+
+from datetime import datetime
+print(f"==== Supernote sync ran at {datetime.now().isoformat()} ====")
 
 def load_config():
    base_dir = os.path.dirname(os.path.abspath(__file__))
