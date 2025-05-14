@@ -1,4 +1,7 @@
-def create_task(api_token, task_content, due_date=None, description=None):
+import re
+
+
+def create_task(api_token, task_id, task_content, due_date=None, description=None):
     import requests
 
     # Updated endpoint for creating tasks
@@ -8,14 +11,13 @@ def create_task(api_token, task_content, due_date=None, description=None):
         "Content-Type": "application/json"
     }
     data = {
-        "content": task_content
+        "content":  "[id:" + str(task_id) + "] " + task_content
     }
 
     if due_date:
         data["due_date"] = due_date  # Use ISO 8601 format (e.g., "2025-05-15")
 
-    if description:
-        data["description"] = description  # Add the task description
+    data["description"] = description  # Add the task id and description
 
     response = requests.post(url, headers=headers, json=data)
 
@@ -56,32 +58,31 @@ def get_todoist_tasks_completed(api_token):
 
     return tasks
 
-def check_existing_tasks(api_token, task_content):
-        import requests
+def get_existing_tasks(api_token):
+    import requests
 
-        url = "https://api.todoist.com/sync/v9/sync"
-        headers = {
-            "Authorization": f"Bearer {api_token}"
-        }
-        data = {
-            "sync_token": "*",  # Use "*" to fetch all tasks
-            "resource_types": '["items"]'  # Specify that we want to fetch tasks
-        }
+    url = "https://api.todoist.com/rest/v2/tasks"
+    headers = {
+        "Authorization": f"Bearer {api_token}"
+    }
 
-        response = requests.post(url, headers=headers, json=data)
+    response = requests.get(url, headers=headers)
 
-        if response.status_code == 429:
-            error_details = response.json()
-            retry_after = error_details.get("error_extra", {}).get("retry_after", "unknown")
-            print(f"Rate limit reached. Retry after {retry_after} seconds.")
-            return False
+    if response.status_code == 429:
+        error_details = response.json()
+        retry_after = error_details.get("error_extra", {}).get("retry_after", "unknown")
+        print(f"Rate limit reached. Retry after {retry_after} seconds.")
+        return False
 
-        if response.status_code != 200:
-            raise Exception(f"Failed to fetch tasks: {response.status_code} {response.text}")
+    if response.status_code != 200:
+        raise Exception(f"Failed to fetch tasks: {response.status_code} {response.text}")
 
-        tasks = response.json().get("items", [])  # Extract tasks from the response
+    tasks = response.json()  # Extract tasks from the response
+    return tasks
 
+def check_existing_tasks(tasks, task_id):
         for task in tasks:
-            if task['content'] == task_content:
+            match = re.search(r"\[id:(\d+)\]", task.get('content', ''))
+            if match and int(match.group(1)) == int(task_id):
                 return True
         return False
