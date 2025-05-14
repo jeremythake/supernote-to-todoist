@@ -63,12 +63,13 @@ To run on the schedule. The best way on MacOS is to use Automator.
 4. Save the application.
 5. Add **SupernoteSync.app** to **System Settings → Privacy & Security → Full Disk Access**
 6. Copy the **com.supernote.sync.app.plist** file to **~/Library/LaunchAgents/**.
-6.  Open **Terminal**
-7. Run below command to add this as a scheduled job.
+7. Adjust the path to the app in the plist file.
+8.  Open **Terminal**
+9. Run below command to add this as a scheduled job.
 
 `launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.supernote.sync.app.plist`
 
-7. check its running by reading the logs
+10. check its running by reading the logs
 `cat /tmp/supernote-automator.log`
 
 ## Contributing
