@@ -173,4 +173,5 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 src/config.json
-src/ocr_sync.py
+.DS_Store
+src/config.json
