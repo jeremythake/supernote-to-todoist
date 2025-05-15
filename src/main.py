@@ -28,10 +28,6 @@ def sync_tasks():
     REMINDER_DATE_POS = 9
     METADATA_POS = 12  # Base64 encoded metadata
 
-    config = load_config()
-    db_path = config['supernote_db_path']
-    todoist_api_token = config['todoist_api_key']
-
     supernote_tasks = get_supernote_tasks_needsAction(db_path)
 
     # Step 1: Sync completed tasks from Todoist to Supernote
@@ -76,4 +72,9 @@ def sync_tasks():
 
 
 if __name__ == "__main__":
+
+    config = load_config()
+    db_path = config['supernote_db_path']
+    todoist_api_token = config['todoist_api_key']
+    
     sync_tasks()
