@@ -3,15 +3,20 @@
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>com.supernote.sync.app</string>
+  <string>com.supernote.sync.script</string>
 
   <key>ProgramArguments</key>
   <array>
-    <string>/usr/bin/open</string>
-    <string>/Users/jeremythake/Applications/SupernoteSync.app</string>
+    <string>/bin/zsh</string>
+    <string>/Users/jeremythake/Code/supernote-to-todoist/src/run_sync.sh</string>
   </array>
 
   <key>StartInterval</key>
-  <integer>300</integer> <!-- every 5 minutes -->
+  <integer>300</integer>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/supernote-launchd.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/supernote-launchd.log</string>
 </dict>
 </plist>
