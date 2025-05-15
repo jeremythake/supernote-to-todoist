@@ -38,6 +38,8 @@ cd /Users/jeremythake/Code/supernote-to-todoist
    ```
 
 4. Configure your settings:
+   ```bash
+   cp src/config.example.json src/config.json
    - Open `config.json` 
      1. **add Todoist API token** - Go to Todoist to get the key for the *todoist_api_key* setting. See more at [https://www.todoist.com/help/articles/find-your-api-token-Jpzx9IIlB]
      2. **add database connection settings** - Find the calendar file location at `~/Library/Containers/com.ratta.supernote/Data/Library/Application Support/com.ratta.supernote` and there is a ID number folder, go into that and find the `calendar_db.sqlite` file. Use that full path for the *supernote_db_path* setting. 

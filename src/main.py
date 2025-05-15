@@ -10,6 +10,10 @@ from supernote import update_supernote_task_status, get_supernote_tasks_needsAct
 
 os.chdir("/Users/jeremythake/Code/supernote-to-todoist")
 
+if not os.path.exists("src/config.json"):
+    print("Missing src/config.json. Please copy from src/config.example.json and update your values.")
+    sys.exit(1)
+    
 from datetime import datetime
 print(f"==== Supernote sync ran at {datetime.now().isoformat()} ====")
 
