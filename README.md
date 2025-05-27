@@ -19,7 +19,7 @@ supernote-todoist-sync
 ## Setup Instructions
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/supernote-todoist-sync.git
+   git clone https://github.com/jeremythake/supernote-to-todoist
    cd supernote-todoist-sync
    ```
 
