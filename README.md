@@ -17,16 +17,18 @@ supernote-todoist-sync
 ```
 
 ## Setup Instructions
-1. Clone the repository:
+1. Open a new terminal and clone the repository:
    ```
+   mkdir Code
+   cd Code
    git clone https://github.com/jeremythake/supernote-to-todoist
-   cd supernote-todoist-sync
+   cd supernote-to-todoist
    ```
 
 2. Create the python virtual environment and check referenced correctly in `launch.json`. Change the paths to your environment.
 
 ```
-cd /Users/jeremythake/Code/supernote-to-todoist
+cd ~/Code/supernote-to-todoist
 /opt/homebrew/bin/python3.11 -m venv .venv
 ```
 
@@ -48,7 +50,7 @@ cd /Users/jeremythake/Code/supernote-to-todoist
 ## Usage
 To run the synchronization script, execute the following command. Change the paths to your environment.
 ```
-/Users/jeremythake/Code/supernote-to-todoist/.venv/bin/python /Users/jeremythake/Code/supernote-to-todoist/src/main.py
+~/Code/supernote-to-todoist/.venv/bin/python ~/Code/supernote-to-todoist/src/main.py
 ```
 
 This will read tasks from `supernote.db`, check for existing tasks in Todoist, and create any new tasks as necessary. It will also sync back any tasks you mark as complete into the Supernote database.
@@ -61,7 +63,7 @@ To run on the schedule. I learnt the hard way the best way is to have a **.sh sc
 2. Replace the command to run with the following. Adjusting the paths to your virtual environment and python script.
 
 ```
-/Users/jeremythake/Code/supernote-to-todoist/.venv/bin/python /Users/jeremythake/Code/supernote-to-todoist/src/main.py >> /tmp/supernote-automator.log 2>&1
+~/Code/supernote-to-todoist/.venv/bin/python ~/Code/supernote-to-todoist/src/main.py >> /tmp/supernote-automator.log 2>&1
 ```
 3. Make the **run_sync.sh** executable in terminal:
 
