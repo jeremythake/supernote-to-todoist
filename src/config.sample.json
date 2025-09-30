@@ -2,5 +2,7 @@
   "openai_api_key": "YOUR_API_KEY_HERE",
   "supernote_dir": "/path/to/supernote",
   "todoist_token": "YOUR_TODOIST_TOKEN",
-  "sync_interval_minutes": 15
+  "sync_interval_minutes": 15,
+  "INPUT_DIR": "PATH_TO_NOTEBOOKS",
+  "OUTPUT_DIR": "PATH_TO_FILES"
 }

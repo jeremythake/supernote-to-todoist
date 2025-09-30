@@ -8,7 +8,7 @@ import base64
 from todoist_api import create_task, check_existing_tasks, get_existing_tasks, get_todoist_tasks_completed
 from supernote import update_supernote_task_status, get_supernote_tasks_needsAction, decode_metadata, convert_timestamp_to_date, get_supernote_tasks_all
 
-os.chdir("/Users/jeremythake/Code/supernote-to-todoist")
+os.chdir("~/Code/supernote-to-todoist")
 
 if not os.path.exists("src/config.json"):
     print("Missing src/config.json. Please copy from src/config.example.json and update your values.")

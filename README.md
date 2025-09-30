@@ -34,7 +34,9 @@ cd ~/Code/supernote-to-todoist
 
 3. Install the required dependencies:
    ```
-   pip install -r requirements.txt
+   python3 -m venv .venv
+   source .venv/bin/activate
+   python3 -m pip install -r requirements.txt
    brew install ghostscript
    brew install ocrmypdf
    ```
@@ -60,31 +62,26 @@ This will read tasks from `supernote.db`, check for existing tasks in Todoist, a
 To run on the schedule. I learnt the hard way the best way is to have a **.sh script** and run it on a schedule using **launchctl**. 
 
 1. Open the **run_sync.sh** file.
-2. Replace the command to run with the following. Adjusting the paths to your virtual environment and python script.
 
-```
-~/Code/supernote-to-todoist/.venv/bin/python ~/Code/supernote-to-todoist/src/main.py >> /tmp/supernote-automator.log 2>&1
-```
-3. Make the **run_sync.sh** executable in terminal:
+2. Make the **run_sync.sh** executable in terminal:
 
 ```
 chmod +x ~/Code/supernote-to-todoist/src/run_sync.sh
 ```   
-5. Add **Python** to **System Settings → Privacy & Security → Full Disk Access**. You'll need to follow the alias in your **.env/bin/python** folder to get the path of the original. It will look something like this `/opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/bin` depending on the version. To show this folder its easiest to hit **command-shift-g** and paste in the path and select.
-6. Copy the **com.supernote.sync.app.plist** file to **~/Library/LaunchAgents/**.
-7. Adjust the path to the **main.py** file in the plist file.
-8.  Open **Terminal**
-9. Run below command to add this as a scheduled job.
+3. Add **Python** to **System Settings → Privacy & Security → Full Disk Access**. You'll need to follow the alias in your **.env/bin/python** folder to get the path of the original. It will look something like this `/opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/bin` depending on the version. To show this folder its easiest to hit **command-shift-g** and paste in the path and select.
+4. Copy the **com.supernote.sync.app.plist** file to **~/Library/LaunchAgents/**.
+5.  Open **Terminal**
+6. Run below command to add this as a scheduled job.
 ```
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.supernote.sync.app.plist
 ```
 
-10. Check its in the list:
+7. Check its in the list:
 ```
 launchctl list | grep supernote 
 ```
 
-11. Give it 5 mins and check its running by reading the logs:
+9. Give it 5 mins and check its running by reading the logs:
 ```
 cat /tmp/supernote-automator.log
 ```

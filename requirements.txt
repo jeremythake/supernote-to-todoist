@@ -1,2 +1,10 @@
 requests
 pandas
+supernotelib
+ocrmypdf
+transformers 
+torch 
+torchvision 
+pillow
+python-docx
+easyocr
