@@ -1,19 +1,33 @@
-# supernote-todoist-sync
+# supernote-to-todoist
 
 ## Overview
-This project synchronizes tasks from the Supernote cloud service to Todoist. It reads tasks from a local SQLite database (`supernote.db`) and creates them in Todoist if they do not already exist.
+This project provides comprehensive synchronization between Supernote devices and Todoist, including task management and OCR capabilities for handwritten notes. It reads tasks from the Supernote calendar database and syncs them with Todoist, while also providing OCR functionality to convert handwritten notes to text using OpenAI's GPT-4 Vision API.
+
+## Features
+- **Task Synchronization**: Bidirectional sync between Supernote calendar tasks and Todoist
+- **OCR Processing**: Convert handwritten Supernote files (.note) to searchable text using AI
+- **Document Conversion**: Export notes to various formats (PNG, PDF, DOCX, TXT)
+- **Automated Scheduling**: Run synchronization on a schedule using macOS LaunchAgents
 
 ## Project Structure
 ```
-supernote-todoist-sync
-├── src
-│   ├── main.py          # Entry point of the script
-│   ├── db_reader.py     # Functions to read from the supernote.db
-│   ├── todoist_api.py   # Functions to interact with the Todoist API
-│   └── utils.py         # Utility functions for logging and error handling
-├── requirements.txt      # Python dependencies
-├── config.json           # Configuration settings (API keys, database settings)
-└── README.md             # Project documentation
+supernote-to-todoist/
+├── src/
+│   ├── main.py              # Main entry point for task synchronization
+│   ├── supernote.py         # Core Supernote database functions
+│   ├── todoist_api.py       # Todoist API integration
+│   ├── ocr_sync.py          # OCR synchronization orchestrator
+│   ├── supernote_to_text.py # Note-to-image conversion and OCR processing
+│   ├── openaiconvert.py     # OpenAI GPT-4 Vision API integration
+│   ├── convert-docx-txt.py  # DOCX to TXT conversion utility
+│   ├── utils.py             # Utility functions for logging and error handling
+│   ├── run_sync.sh          # Shell script for scheduled execution
+│   ├── config.json          # Configuration settings (API keys, paths)
+│   └── config.sample.json   # Sample configuration file
+├── supernote/               # Directory for Supernote files (empty by default)
+├── requirements.txt         # Python dependencies
+├── com.supernote.sync.app.plist # macOS LaunchAgent configuration
+└── README.md               # Project documentation
 ```
 
 ## Setup Instructions
@@ -33,58 +47,131 @@ cd ~/Code/supernote-to-todoist
 ```
 
 3. Install the required dependencies:
-   ```
+   ```bash
    python3 -m venv .venv
    source .venv/bin/activate
-   python3 -m pip install -r requirements.txt
+   pip install -r requirements.txt
    brew install ghostscript
    brew install ocrmypdf
+   pip install supernote-tool  # For .note file conversion
    ```
 
 4. Configure your settings:
    ```bash
-   cp src/config.example.json src/config.json
-   - Open `config.json` 
-     1. **add Todoist API token** - Go to Todoist to get the key for the *todoist_api_key* setting. See more at [https://www.todoist.com/help/articles/find-your-api-token-Jpzx9IIlB]
-     2. **add database connection settings** - Find the calendar file location at `~/Library/Containers/com.ratta.supernote/Data/Library/Application Support/com.ratta.supernote` and there is a ID number folder, go into that and find the `calendar_db.sqlite` file. Use that full path for the *supernote_db_path* setting. 
+   cp src/config.sample.json src/config.json
+   ```
+   Open `config.json` and configure:
+   1. **Todoist API Key**: Get your API token from [Todoist Settings](https://todoist.com/help/articles/find-your-api-token-Jpzx9IIlB) and add it to `todoist_api_key`
+   2. **Supernote Database Path**: Find the calendar database at `~/Library/Containers/com.ratta.supernote/Data/Library/Application Support/com.ratta.supernote/[ID]/calendar_db.sqlite` and set the full path in `supernote_db_path`
+   3. **OpenAI API Key** (for OCR features): Add your OpenAI API key to `openai_api_key` if you plan to use OCR functionality 
 
 
 ## Usage
-To run the synchronization script, execute the following command. Change the paths to your environment.
-```
+
+### Task Synchronization
+To run the main task synchronization between Supernote and Todoist:
+```bash
 ~/Code/supernote-to-todoist/.venv/bin/python ~/Code/supernote-to-todoist/src/main.py
 ```
 
-This will read tasks from `supernote.db`, check for existing tasks in Todoist, and create any new tasks as necessary. It will also sync back any tasks you mark as complete into the Supernote database.
+This will:
+- Read tasks from the Supernote calendar database
+- Check for existing tasks in Todoist
+- Create new tasks in Todoist as needed
+- Sync completion status back to Supernote
 
-## Schedule usage
-
-To run on the schedule. I learnt the hard way the best way is to have a **.sh script** and run it on a schedule using **launchctl**. 
-
-1. Open the **run_sync.sh** file.
-
-2. Make the **run_sync.sh** executable in terminal:
-
-```
-chmod +x ~/Code/supernote-to-todoist/src/run_sync.sh
-```   
-3. Add **Python** to **System Settings → Privacy & Security → Full Disk Access**. You'll need to follow the alias in your **.env/bin/python** folder to get the path of the original. It will look something like this `/opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/bin` depending on the version. To show this folder its easiest to hit **command-shift-g** and paste in the path and select.
-4. Copy the **com.supernote.sync.app.plist** file to **~/Library/LaunchAgents/**.
-5.  Open **Terminal**
-6. Run below command to add this as a scheduled job.
-```
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.supernote.sync.app.plist
+### OCR Processing
+To convert handwritten Supernote files to text:
+```bash
+~/Code/supernote-to-todoist/.venv/bin/python ~/Code/supernote-to-todoist/src/ocr_sync.py
 ```
 
-7. Check its in the list:
-```
-launchctl list | grep supernote 
+This will:
+- Process .note files modified today
+- Convert them to PNG images
+- Use OpenAI GPT-4 Vision to extract handwritten text
+- Save results as DOCX files
+
+### Document Conversion
+To convert DOCX files to plain text:
+```bash
+~/Code/supernote-to-todoist/.venv/bin/python ~/Code/supernote-to-todoist/src/convert-docx-txt.py
 ```
 
-9. Give it 5 mins and check its running by reading the logs:
+## Scheduled Execution
+
+To run synchronization on a schedule, this project uses macOS LaunchAgents with a shell script.
+
+1. Make the sync script executable:
+   ```bash
+   chmod +x ~/Code/supernote-to-todoist/src/run_sync.sh
+   ```
+
+2. **Important**: Add Python to **System Settings → Privacy & Security → Full Disk Access**. 
+   - Navigate to your Python executable (follow the symlink in `.venv/bin/python`)
+   - Path typically looks like: `/opt/homebrew/Cellar/python@3.11/3.11.12/Frameworks/Python.framework/Versions/3.11/bin/python3.11`
+   - Use **⌘+Shift+G** to navigate to this path and add it to Full Disk Access
+
+3. Copy the launch agent configuration:
+   ```bash
+   cp com.supernote.sync.app.plist ~/Library/LaunchAgents/
+   ```
+
+4. Load the scheduled job:
+   ```bash
+   launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.supernote.sync.app.plist
+   ```
+
+5. Verify it's running:
+   ```bash
+   launchctl list | grep supernote
+   ```
+
+6. Check the logs (wait 5 minutes after setup):
+   ```bash
+   cat /tmp/supernote-automator.log
+   ```
+
+## Dependencies
+
+The project requires the following Python packages (see `requirements.txt`):
+- `requests` - HTTP requests for Todoist API
+- `pandas` - Data manipulation
+- `supernotelib` - Supernote file handling
+- `ocrmypdf` - PDF OCR processing
+- `transformers`, `torch`, `torchvision` - Machine learning models for OCR
+- `pillow` - Image processing
+- `python-docx` - DOCX file handling
+- `easyocr` - Additional OCR capabilities
+- `openai` - OpenAI API integration
+
+External dependencies:
+- `ghostscript` - PostScript/PDF processing
+- `ocrmypdf` - OCR for PDF files
+- `supernote-tool` - CLI tool for .note file conversion
+
+## Configuration
+
+The `config.json` file should contain:
+```json
+{
+  "todoist_api_key": "your_todoist_api_token",
+  "supernote_db_path": "/path/to/calendar_db.sqlite",
+  "openai_api_key": "your_openai_api_key"
+}
 ```
-cat /tmp/supernote-automator.log
-```
+
+## Troubleshooting
+
+### Common Issues
+1. **Permission Denied**: Ensure Python has Full Disk Access in macOS System Settings
+2. **Database Not Found**: Verify the Supernote database path in `config.json`
+3. **API Errors**: Check that your Todoist and OpenAI API keys are valid
+4. **OCR Not Working**: Ensure `supernote-tool` is installed and accessible
+
+### Log Files
+- LaunchAgent logs: `/tmp/supernote-automator.log`
+- Check system logs: `log show --predicate 'subsystem contains "com.supernote.sync"' --last 1h`
 
 ## Contributing
 Feel free to submit issues or pull requests if you have suggestions or improvements for the project.
